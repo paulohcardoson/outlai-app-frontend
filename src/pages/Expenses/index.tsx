@@ -11,7 +11,6 @@ import { SearchIcon } from "lucide-react";
 import {
 	InputGroup,
 	InputGroupAddon,
-	InputGroupButton,
 	InputGroupInput,
 } from "@/components/ui/InputGroup/input-group";
 import { ExpenseItem } from "./components/ExpenseItem";
@@ -24,6 +23,7 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@/components/ui/Pagination";
+import { Button } from "@/components/ui/Button";
 
 const allExpenses = [
 	{
@@ -128,55 +128,53 @@ export const ExpensesPage = () => {
 			<Card>
 				<Title>Gastos</Title>
 
-				<InputGroup>
-					<InputGroupAddon align={"inline-start"}>
-						<SearchIcon />
-					</InputGroupAddon>
+				<div className="flex flex-col gap-1">
+					<InputGroup>
+						<InputGroupAddon align={"inline-start"}>
+							<SearchIcon />
+						</InputGroupAddon>
 
-					<InputGroupInput placeholder="Buscar despesas" />
+						<InputGroupInput placeholder="Buscar despesas" />
 
-					<InputGroupAddon align={"inline-end"}>
-						<InputGroupButton variant={"default"}>Buscar</InputGroupButton>
-					</InputGroupAddon>
-				</InputGroup>
+						<InputGroupAddon align={"inline-end"}>12 total</InputGroupAddon>
+					</InputGroup>
 
-				<div className="flex justify-between gap-2">
-					<div className="flex flex-col gap-0.5 w-full">
-						<h3 className="text-sm opacity-50">Categoria</h3>
+					<div className="flex justify-between gap-2">
+						<div className="flex flex-col gap-0.5 w-full">
+							<Select>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="All" />
+								</SelectTrigger>
 
-						<Select>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder="All" />
-							</SelectTrigger>
-
-							<SelectContent>
-								{categories.map((category) => (
-									<SelectItem key={category} value={category}>
-										{category}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-
-					<div className="flex flex-col gap-0.5 w-full">
-						<h3 className="text-sm opacity-50">Ordem</h3>
-
-						<Select>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder="All" />
-							</SelectTrigger>
-
-							<SelectContent>
-								{orderByOptions.map((option) => {
-									return (
-										<SelectItem key={option} value={option}>
-											{option}
+								<SelectContent>
+									{categories.map((category) => (
+										<SelectItem key={category} value={category}>
+											{category}
 										</SelectItem>
-									);
-								})}
-							</SelectContent>
-						</Select>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div className="flex flex-col gap-0.5 w-full">
+							<Select>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="All" />
+								</SelectTrigger>
+
+								<SelectContent>
+									{orderByOptions.map((option) => {
+										return (
+											<SelectItem key={option} value={option}>
+												{option}
+											</SelectItem>
+										);
+									})}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<Button>Buscar</Button>
 					</div>
 				</div>
 			</Card>

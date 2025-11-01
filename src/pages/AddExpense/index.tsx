@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/Button";
-import { DollarSignIcon, PlusIcon, SparklesIcon } from "lucide-react";
+import {
+	DollarSignIcon,
+	PlusIcon,
+	SendIcon,
+	SparklesIcon,
+	XCircleIcon,
+} from "lucide-react";
 import { ExpenseItem } from "../Expenses/components/ExpenseItem";
 import type { Expense, ExpenseWithId } from "@/types/Outlay";
 import { useId, useState } from "react";
@@ -26,6 +32,17 @@ import {
 	DropzoneContent,
 	DropzoneEmptyState,
 } from "@/components/ui/Dropzone";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/AlertDialog";
 
 export interface Inputs {
 	title: string;
@@ -91,6 +108,13 @@ export const AddExpensePage = () => {
 		const date = new Date();
 
 		setExpensesToPost((expenses) => [...expenses, { id, ...data, date }]);
+	};
+	const deleteAllExpenses = () => {
+		setExpensesToPost([]);
+	};
+
+	const publish = () => {
+		// TODO
 	};
 
 	return (
@@ -236,15 +260,60 @@ export const AddExpensePage = () => {
 				</ButtonGroup>
 			</div>
 
-			{expensesToPost.map((expense) => (
-				<ExpenseItem
-					key={expense.id}
-					{...expense}
-					isEditable
-					onEdit={(data) => editExpense(expense.id, data)}
-					onDelete={() => deleteExpense(expense.id)}
-				/>
-			))}
+			<main className="flex-1">
+				{expensesToPost.map((expense) => (
+					<ExpenseItem
+						key={expense.id}
+						{...expense}
+						isEditable
+						onEdit={(data) => editExpense(expense.id, data)}
+						onDelete={() => deleteExpense(expense.id)}
+					/>
+				))}
+			</main>
+
+			{expensesToPost.length > 0 && (
+				<div>
+					<div className="flex gap-2 max-w-7xl mx-auto">
+						<Button className="flex-1 gap-2 h-12" onClick={() => publish()}>
+							<SendIcon className="h-4 w-4" />
+							Publicar todos ({expensesToPost.length})
+						</Button>
+
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<Button variant="outline" className="gap-2 h-12">
+									<XCircleIcon className="h-4 w-4" />
+									Limpar todas
+								</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										Excluir todas as despesas?
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										Isso irá remover{" "}
+										{expensesToPost.length === 1
+											? `a despesa ${expensesToPost[0].title} `
+											: "todas as despesas"}
+										dessa lista. Essa ação não pode ser desfeita
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Cancelar</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={() => deleteAllExpenses()}
+										className="bg-destructive hover:bg-destructive/90"
+									>
+										{expensesToPost.length === 1 ? "Excluir" : "Excluir todas"}
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+					</div>
+				</div>
+			)}
 		</>
 	);
 };

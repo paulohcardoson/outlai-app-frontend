@@ -8,21 +8,23 @@ import { NavBar } from "./components/app/NavBar";
 
 function App() {
 	return (
-		<BrowserRouter>
-			<main className="font-poppins">
-				<Header />
+		<main className="min-h-screen flex flex-col">
+			<Header />
 
-				<main className="flex flex-col gap-3 p-default min-h-full pb-20">
-					<Routes>
-						<Route path="/" element={<HomePage />} />
-						<Route path="/expenses" element={<ExpensesPage />} />
-						<Route path="/add" element={<AddExpensePage />} />
-					</Routes>
-
+			<div className="flex flex-1 items-stretch">
+				<BrowserRouter>
 					<NavBar />
-				</main>
-			</main>
-		</BrowserRouter>
+
+					<main className="flex-1 flex flex-col gap-3 p-default min-h-full">
+						<Routes>
+							<Route path="/" element={<HomePage />} />
+							<Route path="/expenses" element={<ExpensesPage />} />
+							<Route path="/add" element={<AddExpensePage />} />
+						</Routes>
+					</main>
+				</BrowserRouter>
+			</div>
+		</main>
 	);
 }
 
