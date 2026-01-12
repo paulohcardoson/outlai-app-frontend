@@ -28,9 +28,11 @@ export async function fetchClient<T = unknown>(endpoint: string, options: Reques
     url += `?${searchParams.toString()}`;
   }
 
-  const defaultHeaders: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
+  const defaultHeaders: HeadersInit = {};
+
+  if (rest.body) {
+    defaultHeaders['Content-Type'] = 'application/json';
+  }
 
   const config: RequestInit = {
     ...rest,

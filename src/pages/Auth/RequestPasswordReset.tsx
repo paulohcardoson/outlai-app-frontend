@@ -1,9 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Wallet } from "lucide-react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../../components/ui/button";
@@ -24,50 +22,38 @@ import {
   FormMessage,
 } from "../../components/ui/form";
 import { Input } from "../../components/ui/input";
+import { authService } from "@/services/auth";
 import { ApiError } from "@/lib/api-client";
 
-const loginSchema = z.object({
+const requestResetSchema = z.object({
   email: z.string().email("Email inválido"),
-  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
 });
 
-type LoginForm = z.infer<typeof loginSchema>;
+type RequestResetForm = z.infer<typeof requestResetSchema>;
 
-export function Login() {
-  const { login, isAuthenticated, user } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/");
-    }
-  }, [isAuthenticated, navigate, user]);
-
-  const form = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+export function RequestPasswordReset() {
+  const form = useForm<RequestResetForm>({
+    resolver: zodResolver(requestResetSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async (data: RequestResetForm) => {
     try {
-      await login(data);
-      toast.success("Login realizado com sucesso!");
+      await authService.requestPasswordReset(data.email);
+      toast.success("Email de recuperação enviado! Verifique sua caixa de entrada.");
+      form.reset();
     } catch (error) {
       let errorMessage: string;
 
       if (error instanceof ApiError) {
         errorMessage = error.data.error;
       } else {
-        errorMessage = "Falha no login. Verifique suas credenciais.";
+        errorMessage = "Falha ao solicitar recuperação. Tente novamente.";
       }
 
       toast.error(errorMessage);
-      form.setError("root", {
-        message: errorMessage
-      });
     }
   };
 
@@ -79,18 +65,18 @@ export function Login() {
             <Wallet className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Bem-vindo de volta
+            Recuperar Senha
           </h1>
           <p className="text-muted-foreground mt-2">
-            Entre na sua conta para gerenciar suas despesas
+            Insira seu email para receber um link de recuperação
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Login</CardTitle>
+            <CardTitle>Recuperação de Conta</CardTitle>
             <CardDescription>
-              Insira suas credenciais para acessar sua conta
+              Enviaremos um link para você redefinir sua senha
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -112,55 +98,24 @@ export function Login() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Senha</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <Button
                   type="submit"
                   className="w-full"
                   disabled={form.formState.isSubmitting}
                 >
-                  {form.formState.isSubmitting ? "Entrando..." : "Entrar"}
+                  {form.formState.isSubmitting ? "Enviando..." : "Enviar Email"}
                 </Button>
               </form>
             </Form>
           </CardContent>
           <CardFooter className="flex flex-col justify-center space-y-2">
             <div className="text-sm text-muted-foreground">
-              Esqueceu sua senha?{" "}
+              Lembrou sua senha?{" "}
               <Link
-                to="/request-password-reset"
+                to="/login"
                 className="font-medium text-primary hover:underline underline-offset-4"
               >
-                Recuperar senha
-              </Link>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Não tem uma conta?{" "}
-              <Link
-                to="/register"
-                className="font-medium text-primary hover:underline underline-offset-4"
-              >
-                Cadastre-se
-              </Link>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Não recebeu o email?{" "}
-              <Link
-                to="/resend-verification"
-                className="font-medium text-primary hover:underline underline-offset-4"
-              >
-                Reenviar verificação
+                Voltar para Login
               </Link>
             </div>
           </CardFooter>

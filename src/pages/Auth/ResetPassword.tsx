@@ -1,9 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Wallet } from "lucide-react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../../components/ui/button";
@@ -24,52 +22,69 @@ import {
   FormMessage,
 } from "../../components/ui/form";
 import { Input } from "../../components/ui/input";
+import { authService } from "@/services/auth";
 import { ApiError } from "@/lib/api-client";
+import { useEffect } from "react";
 
-const loginSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
-});
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não conferem",
+    path: ["confirmPassword"],
+  });
 
-type LoginForm = z.infer<typeof loginSchema>;
+type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
-export function Login() {
-  const { login, isAuthenticated, user } = useAuth();
+export function ResetPassword() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const userId = searchParams.get("user-id");
+  const token = searchParams.get("token");
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/");
-    }
-  }, [isAuthenticated, navigate, user]);
-
-  const form = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<ResetPasswordForm>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (data: LoginForm) => {
+  useEffect(() => {
+    console.log({
+      userId,
+      token
+    })
+    if (!userId || !token) {
+      navigate("/login");
+    }
+  }, [userId, token, navigate]);
+
+  const onSubmit = async (data: ResetPasswordForm) => {
+    if (!userId || !token) return;
+
     try {
-      await login(data);
-      toast.success("Login realizado com sucesso!");
+      await authService.resetPassword(userId, token, data.password);
+      toast.success("Senha redefinida com sucesso! Faça login com sua nova senha.");
+      navigate("/login");
     } catch (error) {
       let errorMessage: string;
 
       if (error instanceof ApiError) {
         errorMessage = error.data.error;
       } else {
-        errorMessage = "Falha no login. Verifique suas credenciais.";
+        errorMessage = "Falha ao redefinir senha. O link pode ter expirado.";
       }
 
       toast.error(errorMessage);
-      form.setError("root", {
-        message: errorMessage
-      });
     }
   };
+
+  if (!userId || !token) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -79,18 +94,18 @@ export function Login() {
             <Wallet className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Bem-vindo de volta
+            Redefinir Senha
           </h1>
           <p className="text-muted-foreground mt-2">
-            Entre na sua conta para gerenciar suas despesas
+            Crie uma nova senha para sua conta
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Login</CardTitle>
+            <CardTitle>Nova Senha</CardTitle>
             <CardDescription>
-              Insira suas credenciais para acessar sua conta
+              A senha deve ter no mínimo 8 caracteres
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -101,12 +116,12 @@ export function Login() {
               >
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Nova Senha</FormLabel>
                       <FormControl>
-                        <Input placeholder="seu@email.com" {...field} />
+                        <Input type="password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -114,10 +129,10 @@ export function Login() {
                 />
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Senha</FormLabel>
+                      <FormLabel>Confirmar Nova Senha</FormLabel>
                       <FormControl>
                         <Input type="password" {...field} />
                       </FormControl>
@@ -130,37 +145,18 @@ export function Login() {
                   className="w-full"
                   disabled={form.formState.isSubmitting}
                 >
-                  {form.formState.isSubmitting ? "Entrando..." : "Entrar"}
+                  {form.formState.isSubmitting ? "Redefinindo..." : "Redefinir Senha"}
                 </Button>
               </form>
             </Form>
           </CardContent>
           <CardFooter className="flex flex-col justify-center space-y-2">
             <div className="text-sm text-muted-foreground">
-              Esqueceu sua senha?{" "}
               <Link
-                to="/request-password-reset"
+                to="/login"
                 className="font-medium text-primary hover:underline underline-offset-4"
               >
-                Recuperar senha
-              </Link>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Não tem uma conta?{" "}
-              <Link
-                to="/register"
-                className="font-medium text-primary hover:underline underline-offset-4"
-              >
-                Cadastre-se
-              </Link>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Não recebeu o email?{" "}
-              <Link
-                to="/resend-verification"
-                className="font-medium text-primary hover:underline underline-offset-4"
-              >
-                Reenviar verificação
+                Cancelar e voltar para Login
               </Link>
             </div>
           </CardFooter>

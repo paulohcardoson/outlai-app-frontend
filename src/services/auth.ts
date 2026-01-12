@@ -24,7 +24,7 @@ export const authService = {
 
   logout: async (): Promise<void> => {
     return fetchClient('/auth/logout', {
-      method: 'POST'
+      method: 'POST',
     });
   },
 
@@ -32,6 +32,20 @@ export const authService = {
     return fetchClient('/auth/resend-email-verification', {
       method: 'POST',
       body: JSON.stringify({ email }),
+    });
+  },
+
+  requestPasswordReset: async (email: string): Promise<void> => {
+    return fetchClient('/auth/request-password-reset', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  resetPassword: async (userId: string, token: string, newPassword: string): Promise<void> => {
+    return fetchClient('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ userId, token, newPassword }),
     });
   }
 };

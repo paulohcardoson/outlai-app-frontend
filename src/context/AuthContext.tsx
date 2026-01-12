@@ -52,10 +52,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	const login = async (credentials: LoginCredentials) => {
-		const response = await authService.login(credentials);
-		// localStorage.setItem("token", response.token);
-		// setToken(response.token);
-		setUser(response.user);
+		await authService.login(credentials);
+		const user = await authService.me();
+		setUser(user);
 	};
 
 	const register = async (data: any) => {

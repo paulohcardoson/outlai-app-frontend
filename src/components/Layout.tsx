@@ -1,4 +1,4 @@
-import { LayoutDashboard, List, PlusCircle, Wallet } from "lucide-react";
+import { LayoutDashboard, List, LogOut, PlusCircle, Wallet } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -9,7 +9,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-	const { user } = useAuth();
+	const { user, logout } = useAuth();
 	const location = useLocation();
 	const currentPath = location.pathname;
 
@@ -51,9 +51,18 @@ export function Layout({ children }: LayoutProps) {
 
 				<div className="p-4 mt-auto border-t border-border">
 					{user && (
-						<p className="text-sm font-medium text-muted-foreground">
-							Olá, <span className="text-foreground">{user.name}</span>
-						</p>
+						<div className="flex items-center justify-between">
+							<p className="text-sm font-medium text-muted-foreground truncate max-w-[120px]" title={user.name}>
+								Olá, <span className="text-foreground">{user.name}</span>
+							</p>
+							<button
+								onClick={logout}
+								className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+								title="Sair"
+							>
+								<LogOut size={18} />
+							</button>
+						</div>
 					)}
 				</div>
 			</aside>
@@ -83,6 +92,13 @@ export function Layout({ children }: LayoutProps) {
 									<item.icon size={20} />
 								</Link>
 							))}
+							<button
+								onClick={logout}
+								className="p-2 rounded-md transition-colors text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+								title="Sair"
+							>
+								<LogOut size={20} />
+							</button>
 						</nav>
 					</div>
 				</header>

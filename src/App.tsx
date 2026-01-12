@@ -6,6 +6,8 @@ import { ExpenseList } from "./pages/ExpensesList";
 import { Login } from "./pages/Auth/Login";
 import { Register } from "./pages/Auth/Register";
 import { ResendVerification } from "./pages/Auth/ResendVerification";
+import { RequestPasswordReset } from "./pages/Auth/RequestPasswordReset";
+import { ResetPassword } from "./pages/Auth/ResetPassword";
 import { AuthProvider } from "./context/AuthContext";
 import { ExpensesProvider } from "./context/ExpensesContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -17,6 +19,8 @@ function AppContent() {
 			<Route path="/login" element={<Login />} />
 			<Route path="/register" element={<Register />} />
 			<Route path="/resend-verification" element={<ResendVerification />} />
+			<Route path="/request-password-reset" element={<RequestPasswordReset />} />
+			<Route path="/reset-password" element={<ResetPassword />} />
 			<Route element={<ProtectedRoute />}>
 				<Route
 					path="*"
